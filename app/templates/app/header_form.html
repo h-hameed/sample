@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Create Header with Lines</title>
+    <script>
+        function addLine() {
+            const formset = document.getElementById('formset');
+            const newForm = formset.lastElementChild.cloneNode(true);
+            const totalForms = document.getElementById('id_form-TOTAL_FORMS');
+            const formIndex = parseInt(totalForms.value, 10);
+            
+            // Update the formset index for the new form
+            newForm.innerHTML = newForm.innerHTML.replace(/form-(\d+)-/g, `form-${formIndex}-`);
+            totalForms.value = formIndex + 1;
+
+            // Reset the input values in the cloned form
+            const inputs = newForm.querySelectorAll('input');
+            inputs.forEach(input => input.value = '');
+
+            formset.appendChild(newForm);
+        }
+
+        function removeLine(button) {
+            const formset = document.getElementById('formset');
+            const totalForms = document.getElementById('id_form-TOTAL_FORMS');
+            if (formset.children.length > 1) {
+                button.parentElement.parentElement.remove();
+                totalForms.value = parseInt(totalForms.value, 10) - 1;
+            } else {
+                alert("You must have at least one line.");
+            }
+        }
+    </script>
+</head>
+<body>
+    <h1>Create Header with Lines</h1>
+    <form method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <div id="formset">
+            {% for form in formset.forms %}
+                <div>
+                    {{ form.as_p }}
+                    <button type="button" onclick="removeLine(this)">Remove</button>
+                </div>
+            {% endfor %}
+        </div>
+        <button type="button" onclick="addLine()">Add Line</button>
+        <button type="submit">Submit</button>
+    </form>
+</body>
+</html>
