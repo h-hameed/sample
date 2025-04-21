@@ -5,19 +5,30 @@
     <script>
         function addLine() {
             const formset = document.getElementById('formset');
-            const newForm = formset.lastElementChild.cloneNode(true);
             const totalForms = document.getElementById('id_form-TOTAL_FORMS');
             const formIndex = parseInt(totalForms.value, 10);
-            
-            // Update the formset index for the new form
-            newForm.innerHTML = newForm.innerHTML.replace(/form-(\d+)-/g, `form-${formIndex}-`);
-            totalForms.value = formIndex + 1;
 
-            // Reset the input values in the cloned form
-            const inputs = newForm.querySelectorAll('input');
-            inputs.forEach(input => input.value = '');
+            if (formset.lastElementChild) {
+                const newForm = formset.lastElementChild.cloneNode(true);
+                
+                // Update the formset index for the new form
+                newForm.innerHTML = newForm.innerHTML.replace(/form-(\d+)-/g, `form-${formIndex}-`);
+                totalForms.value = formIndex + 1;
 
-            formset.appendChild(newForm);
+                // Reset the input values in the cloned form
+                const inputs = newForm.querySelectorAll('input');
+                inputs.forEach(input => {
+                    input.value = '';
+                    // Optionally reset other attributes like 'checked' for checkboxes
+                    if (input.type === 'checkbox') {
+                        input.checked = false;
+                    }
+                });
+
+                formset.appendChild(newForm);
+            } else {
+                console.error("No form exists to clone in the formset.");
+            }
         }
 
         function removeLine(button) {
@@ -38,6 +49,7 @@
         {% csrf_token %}
         {{ form.as_p }}
         <div id="formset">
+            {{ formset.management_form }}
             {% for form in formset.forms %}
                 <div>
                     {{ form.as_p }}
